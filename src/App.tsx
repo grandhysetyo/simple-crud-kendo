@@ -1,30 +1,73 @@
-import React from 'react';
-import { Button } from '@progress/kendo-react-buttons';
-import kendoka from './kendoka.svg';
-import './App.css';
+import {
+  Form,
+  Field,
+  FormElement,
+  FieldRenderProps,
+  FormRenderProps,
+} from '@progress/kendo-react-form';
+import { Error } from '@progress/kendo-react-labels';
+import { Input } from '@progress/kendo-react-inputs';
 
-function App() {
-  const handleClick = React.useCallback(() => {
-    window.open('https://www.telerik.com/kendo-react-ui/components/', '_blank');
-  }, []);
-
+const emailRegex: RegExp = new RegExp(/\S+@\S+\.\S+/);
+const emailValidator = (value: string) =>
+  emailRegex.test(value) ? '' : 'Please enter a valid email.';
+const EmailInput = (fieldRenderProps: FieldRenderProps) => {
+  const { validationMessage, visited, ...others } = fieldRenderProps;
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={kendoka} className="App-logo" alt="kendoka" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <Button
-          themeColor={'primary'}
-          size={"large"}
-          onClick={handleClick}
-        >
-          Learn KendoReact
-        </Button>
-      </header>
+    <div>
+      <Input {...others} />
+      {visited && validationMessage && <Error>{validationMessage}</Error>}
     </div>
   );
-}
+};
+
+const App = () => {
+  const handleSubmit = (dataItem: { [name: string]: any }) =>
+    alert(JSON.stringify(dataItem, null, 2));
+  return (
+    <Form
+      onSubmit={handleSubmit}
+      render={(formRenderProps: FormRenderProps) => (
+        <FormElement style={{ maxWidth: 650 }}>
+          <fieldset className={'k-form-fieldset'}>
+            <legend className={'k-form-legend'}>
+              Please fill in the fields:
+            </legend>
+            <div className="mb-3">
+              <Field
+                name={'firstName'}
+                component={Input}
+                label={'First name'}
+              />
+            </div>
+
+            <div className="mb-3">
+              <Field name={'lastName'} component={Input} label={'Last name'} />
+            </div>
+
+            <div className="mb-3">
+              <Field
+                name={'email'}
+                type={'email'}
+                component={EmailInput}
+                label={'Email'}
+                validator={emailValidator}
+              />
+            </div>
+          </fieldset>
+          <div className="k-form-buttons">
+            <button
+              type={'submit'}
+              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base"
+              disabled={!formRenderProps.allowSubmit}
+            >
+              Submit
+            </button>
+          </div>
+        </FormElement>
+      )}
+    />
+  );
+};
 
 export default App;
